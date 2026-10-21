@@ -1,12 +1,11 @@
+import os
 import calendar
 import sqlite3
 from datetime import date, datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g, abort 
 
 app = Flask(__name__)
-# Needed for flash messages. Fine for local use; we'll move it to a
-# hidden setting before deploying.
-app.secret_key = "dev-only-change-me"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
 
 DATABASE = "weather.db"
 
