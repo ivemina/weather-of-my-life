@@ -100,3 +100,11 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover { filter: brightness(1.15); }
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 0 0 16px;
+  border: 1px solid;
+}
+.message.success { background: #e6f4ea; border-color: #8fc9a0; color: #1e4d2b; }
+.message.error   { background: #fdeaea; border-color: #e3a1a1; color: #7a1f1f; }

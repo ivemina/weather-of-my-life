@@ -6,7 +6,7 @@
 <h1>Today</h1>
 <p class="date"><time datetime="{{ today_iso }}">{{ today_text }}</time></p>
 
-<form class="entry-form">
+<form class="entry-form" method="post" action="{{ url_for('save') }}">
   <input type="hidden" name="entry_date" value="{{ today_iso }}">
 
   <fieldset class="mood-picker">
@@ -14,7 +14,8 @@
     <div class="mood-row">
       {% for mood in moods %}
       <label class="mood-option">
-        <input type="radio" name="mood" value="{{ mood.key }}" required>
+        <input type="radio" name="mood" value="{{ mood.key }}" required
+       {% if existing and existing.mood == mood.key %}checked{% endif %}>
         <span class="mood-card" title="{{ mood.meaning }}">
           <span class="mood-emoji" aria-hidden="true">{{ mood.emoji }}</span>
           <span class="mood-name">{{ mood.label }}</span>
@@ -25,13 +26,14 @@
   </fieldset>
 
   <label for="moment">Memorable moment</label>
-  <input type="text" id="moment" name="moment" maxlength="200" required
-         placeholder="What will you remember about today?">
+    <input type="text" id="moment" name="moment" maxlength="200" required
+         placeholder="What will you remember about today?"
+         value="{{ existing.moment if existing else '' }}">
 
   <label for="journal">Journal (optional)</label>
-  <textarea id="journal" name="journal" rows="6"
-            placeholder="Write about your day..."></textarea>
+    <textarea id="journal" name="journal" rows="6"
+            placeholder="Write about your day...">{{ existing.journal if existing else '' }}</textarea>
 
-  <button type="submit">Save</button>
+    <button type="submit">{{ "Update" if existing else "Save" }}</button>
 </form>
 {% endblock %}

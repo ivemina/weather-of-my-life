@@ -1,10 +1,14 @@
-from datetime import date
-from flask import Flask, render_template
+import sqlite3
+from datetime import date, datetime
+from flask import Flask, render_template, request, redirect, url_for, flash, g
 
 app = Flask(__name__)
+# Needed for flash messages. Fine for local use; we'll move it to a
+# hidden setting before deploying.
+app.secret_key = "dev-only-change-me"
 
-# All the moods live in ONE place. To rename or change one later,
-# you only edit this list.
+DATABASE = "weather.db"
+
 MOODS = [
     {"key": "sunny", "emoji": "☀️", "label": "Sunny",
      "meaning": "Happy, energised, or content"},
@@ -19,18 +23,106 @@ MOODS = [
     {"key": "rainbow", "emoji": "🌈", "label": "Rainbow",
      "meaning": "Relief, hope, or things getting better"},
 ]
+VALID_MOODS = {m["key"] for m in MOODS}
 
+
+# ---------- Database helpers ----------
+
+def get_db():
+    """Open one database connection per request and reuse it."""
+    if "db" not in g:
+        g.db = sqlite3.connect(DATABASE)
+        g.db.row_factory = sqlite3.Row  # lets us read columns by name
+    return g.db
+
+
+@app.teardown_appcontext
+def close_db(exception):
+    """Close the connection when the request finishes."""
+    db = g.pop("db", None)
+    if db is not None:
+        db.close()
+
+
+def init_db():
+    """Create the table if it doesn't exist yet."""
+    db = sqlite3.connect(DATABASE)
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS entries (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            entry_date TEXT NOT NULL UNIQUE,
+            mood       TEXT NOT NULL,
+            moment     TEXT NOT NULL,
+            journal    TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+        """
+    )
+    db.commit()
+    db.close()
+
+
+# ---------- Pages ----------
 
 @app.route("/")
 def today():
     today_date = date.today()
+    existing = get_db().execute(
+        "SELECT * FROM entries WHERE entry_date = ?",
+        (today_date.isoformat(),),
+    ).fetchone()
     return render_template(
         "today.html",
         moods=MOODS,
         today_text=today_date.strftime("%A %d %B %Y"),
         today_iso=today_date.isoformat(),
+        existing=existing,
     )
 
+
+@app.route("/save", methods=["POST"])
+def save():
+    entry_date = request.form.get("entry_date", "")
+    mood = request.form.get("mood", "")
+    moment = request.form.get("moment", "").strip()
+    journal = request.form.get("journal", "").strip()
+
+    # Never trust the browser: check the data again on the server.
+    try:
+        datetime.strptime(entry_date, "%Y-%m-%d")
+    except ValueError:
+        flash("That date doesn't look right.", "error")
+        return redirect(url_for("today"))
+
+    if mood not in VALID_MOODS:
+        flash("Please choose how the day felt.", "error")
+        return redirect(url_for("today"))
+    if not moment or len(moment) > 200:
+        flash("Add a memorable moment (up to 200 characters).", "error")
+        return redirect(url_for("today"))
+
+    now = datetime.now().isoformat(timespec="seconds")
+    db = get_db()
+    db.execute(
+        """
+        INSERT INTO entries (entry_date, mood, moment, journal, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(entry_date) DO UPDATE SET
+            mood = excluded.mood,
+            moment = excluded.moment,
+            journal = excluded.journal,
+            updated_at = excluded.updated_at
+        """,
+        (entry_date, mood, moment, journal, now, now),
+    )
+    db.commit()
+    flash("Saved. Your day has been added to your weather.", "success")
+    return redirect(url_for("today"))
+
+
+init_db()
 
 if __name__ == "__main__":
     app.run(debug=True)
