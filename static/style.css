@@ -182,3 +182,19 @@ button.danger {
   cursor: pointer;
 }
 button.danger:hover { filter: brightness(1.15); }
+.bars { list-style: none; padding: 0; margin: 0 0 24px; max-width: 700px; }
+.bar-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 130px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.bar-track { background: #e5e7eb; border-radius: 8px; height: 22px; overflow: hidden; }
+.bar-fill { display: block; height: 100%; border: 0 !important; }
+.bar-count { font-size: 0.9rem; color: var(--muted); }
+.note { color: var(--muted); font-size: 0.9rem; }
+
+@media (max-width: 600px) {
+  .bar-row { grid-template-columns: 1fr; gap: 4px; }
+}

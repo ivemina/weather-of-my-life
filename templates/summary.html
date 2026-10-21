@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Summary {{ month_title }} – The Weather of My Life{% endblock %}
+
+{% block content %}
+<div class="cal-header">
+  <a class="cal-nav" href="{{ url_for('summary', year=prev_year, month=prev_month) }}"
+     aria-label="Previous month">&larr; Prev</a>
+  <h1>{{ month_title }}</h1>
+  <a class="cal-nav" href="{{ url_for('summary', year=next_year, month=next_month) }}"
+     aria-label="Next month">Next &rarr;</a>
+</div>
+
+<p class="date">{{ recorded }} of {{ days_in_month }} days recorded</p>
+
+{% if recorded == 0 %}
+<p>No memories saved this month yet.</p>
+{% else %}
+<ul class="bars">
+  {% for row in breakdown %}
+  <li class="bar-row">
+    <span class="bar-label">
+      <span aria-hidden="true">{{ row.mood.emoji }}</span> {{ row.mood.label }}
+    </span>
+    <span class="bar-track">
+      <span class="bar-fill mood-{{ row.mood.key }}" style="width: {{ row.percent }}%"></span>
+    </span>
+    <span class="bar-count">{{ row.count }} {{ "day" if row.count == 1 else "days" }} ({{ row.percent }}%)</span>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<p class="note">This only counts the days you recorded. It describes your entries, not your health.</p>
+{% endblock %}

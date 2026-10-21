@@ -230,6 +230,49 @@ def edit_entry(entry_date):
         page_title="Edit memory" if existing else "Add memory",
     )
 
+@app.route("/summary")
+def summary():
+    today_date = date.today()
+
+    try:
+        year = int(request.args.get("year", today_date.year))
+        month = int(request.args.get("month", today_date.month))
+        date(year, month, 1)
+    except ValueError:
+        year, month = today_date.year, today_date.month
+
+    prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+
+    prefix = f"{year:04d}-{month:02d}-"
+    rows = get_db().execute(
+        "SELECT mood, COUNT(*) AS total FROM entries "
+        "WHERE entry_date LIKE ? GROUP BY mood",
+        (prefix + "%",),
+    ).fetchall()
+    counts = {r["mood"]: r["total"] for r in rows}
+
+    recorded = sum(counts.values())
+    days_in_month = calendar.monthrange(year, month)[1]
+
+    breakdown = []
+    for m in MOODS:
+        n = counts.get(m["key"], 0)
+        breakdown.append({
+            "mood": m,
+            "count": n,
+            "percent": round(n / recorded * 100) if recorded else 0,
+        })
+
+    return render_template(
+        "summary.html",
+        month_title=date(year, month, 1).strftime("%B %Y"),
+        breakdown=breakdown,
+        recorded=recorded,
+        days_in_month=days_in_month,
+        prev_year=prev_year, prev_month=prev_month,
+        next_year=next_year, next_month=next_month,
+    )
 init_db()
 
 if __name__ == "__main__":
