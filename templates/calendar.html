@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ month_title }} – The Weather of My Life{% endblock %}
+
+{% block content %}
+<div class="cal-header">
+  <a class="cal-nav" href="{{ url_for('calendar_page', year=prev_year, month=prev_month) }}"
+     aria-label="Previous month">&larr; Prev</a>
+  <h1>{{ month_title }}</h1>
+  <a class="cal-nav" href="{{ url_for('calendar_page', year=next_year, month=next_month) }}"
+     aria-label="Next month">Next &rarr;</a>
+</div>
+
+<table class="calendar">
+  <thead>
+    <tr>
+      {% for d in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] %}
+      <th scope="col">{{ d }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for week in weeks %}
+    <tr>
+      {% for cell in week %}
+        {% if cell is none %}
+        <td class="blank"></td>
+        {% else %}
+        <td class="day {{ 'has-entry mood-' ~ cell.mood.key if cell.entry else 'no-entry' }}{{ ' today' if cell.is_today }}">
+          <span class="day-number">{{ cell.day }}</span>
+          {% if cell.entry %}
+          <span class="day-emoji" aria-hidden="true">{{ cell.mood.emoji }}</span>
+          <span class="day-label">{{ cell.mood.label }}</span>
+          {% endif %}
+        </td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="legend-title">Legend</h2>
+<ul class="legend">
+  {% for mood in moods %}
+  <li class="legend-item mood-{{ mood.key }}">
+    <span aria-hidden="true">{{ mood.emoji }}</span> {{ mood.label }}
+    <small>{{ mood.meaning }}</small>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,3 +1,4 @@
+import calendar
 import sqlite3
 from datetime import date, datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g
@@ -121,6 +122,53 @@ def save():
     flash("Saved. Your day has been added to your weather.", "success")
     return redirect(url_for("today"))
 
+@app.route("/calendar")
+def calendar_page():
+    today_date = date.today()
+
+    try:
+        year = int(request.args.get("year", today_date.year))
+        month = int(request.args.get("month", today_date.month))
+        date(year, month, 1)
+    except ValueError:
+        year, month = today_date.year, today_date.month
+
+    prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+
+    prefix = f"{year:04d}-{month:02d}-"
+    rows = get_db().execute(
+        "SELECT * FROM entries WHERE entry_date LIKE ?",
+        (prefix + "%",),
+    ).fetchall()
+    entries_by_day = {int(r["entry_date"][-2:]): r for r in rows}
+
+    moods_by_key = {m["key"]: m for m in MOODS}
+
+    weeks = []
+    for week in calendar.Calendar(firstweekday=0).monthdayscalendar(year, month):
+        cells = []
+        for day in week:
+            if day == 0:
+                cells.append(None)
+            else:
+                entry = entries_by_day.get(day)
+                cells.append({
+                    "day": day,
+                    "entry": entry,
+                    "mood": moods_by_key.get(entry["mood"]) if entry else None,
+                    "is_today": date(year, month, day) == today_date,
+                })
+        weeks.append(cells)
+
+    return render_template(
+        "calendar.html",
+        weeks=weeks,
+        month_title=date(year, month, 1).strftime("%B %Y"),
+        prev_year=prev_year, prev_month=prev_month,
+        next_year=next_year, next_month=next_month,
+        moods=MOODS,
+    )
 
 init_db()
 
