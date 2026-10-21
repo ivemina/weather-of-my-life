@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Today – The Weather of My Life{% endblock %}
+
+{% block content %}
+<h1>Today</h1>
+<p class="date"><time datetime="{{ today_iso }}">{{ today_text }}</time></p>
+
+<form class="entry-form">
+  <input type="hidden" name="entry_date" value="{{ today_iso }}">
+
+  <fieldset class="mood-picker">
+    <legend>How did today feel?</legend>
+    <div class="mood-row">
+      {% for mood in moods %}
+      <label class="mood-option">
+        <input type="radio" name="mood" value="{{ mood.key }}" required>
+        <span class="mood-card" title="{{ mood.meaning }}">
+          <span class="mood-emoji" aria-hidden="true">{{ mood.emoji }}</span>
+          <span class="mood-name">{{ mood.label }}</span>
+        </span>
+      </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <label for="moment">Memorable moment</label>
+  <input type="text" id="moment" name="moment" maxlength="200" required
+         placeholder="What will you remember about today?">
+
+  <label for="journal">Journal (optional)</label>
+  <textarea id="journal" name="journal" rows="6"
+            placeholder="Write about your day..."></textarea>
+
+  <button type="submit">Save</button>
+</form>
+{% endblock %}

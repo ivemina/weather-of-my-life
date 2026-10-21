@@ -1,0 +1,102 @@
+:root {
+  --bg: #f7f8fa;
+  --text: #1f2933;
+  --muted: #6b7280;
+  --border: #d5d9e0;
+  --accent: #2f4858;
+  --selected: #dbe9f6;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: #e5e7eb;
+}
+
+.site-header a { color: var(--text); text-decoration: none; }
+.site-header a:hover { text-decoration: underline; }
+.site-header nav { display: flex; gap: 32px; }
+.brand { font-weight: 700; font-size: 1.2rem; }
+
+main { max-width: 900px; margin: 0 auto; padding: 32px 24px 64px; }
+
+h1 { margin: 0; font-size: 2.5rem; }
+.date { margin: 4px 0 32px; color: var(--muted); font-size: 1.1rem; }
+
+.entry-form label { display: block; margin: 24px 0 8px; font-weight: 600; }
+.entry-form input[type="text"],
+.entry-form textarea {
+  width: 100%;
+  max-width: 640px;
+  padding: 12px 14px;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.mood-picker { border: 0; padding: 0; margin: 0; }
+.mood-picker legend { font-weight: 600; margin-bottom: 12px; }
+.mood-row { display: flex; flex-wrap: wrap; gap: 16px; }
+
+.mood-option { margin: 0 !important; font-weight: normal !important; }
+
+/* Hide the round radio dot but keep it usable by keyboard */
+.mood-option input {
+  position: absolute;
+  opacity: 0;
+}
+
+.mood-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 130px;
+  height: 110px;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.mood-emoji { font-size: 2.2rem; }
+.mood-name { font-size: 0.95rem; }
+
+.mood-option input:checked + .mood-card {
+  border-color: var(--accent);
+  background: var(--selected);
+  font-weight: 700;
+}
+
+.mood-option input:focus-visible + .mood-card {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button[type="submit"] {
+  margin-top: 28px;
+  padding: 12px 36px;
+  font: inherit;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover { filter: brightness(1.15); }
