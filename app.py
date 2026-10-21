@@ -63,7 +63,9 @@ def init_db():
     db.commit()
     db.close()
 
-
+@app.context_processor
+def inject_demo_mode():
+    return {"demo_mode": os.environ.get("DEMO_MODE") == "1"}
 # ---------- Pages ----------
 
 @app.route("/")

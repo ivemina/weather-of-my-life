@@ -16,7 +16,12 @@
       <a href="{{ url_for('summary') }}">Summary</a>
     </nav>
   </header>
-
+  {% if demo_mode %}
+  <p class="demo-banner" role="note">
+    Demo site: all entries are made-up samples. Anyone can edit them, and they may be reset.
+  </p>
+  {% endif %}
+  
       <main id="main">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
