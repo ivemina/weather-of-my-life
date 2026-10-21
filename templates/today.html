@@ -3,7 +3,7 @@
 {% block title %}Today – The Weather of My Life{% endblock %}
 
 {% block content %}
-<h1>Today</h1>
+<h1>{{ page_title if page_title else "Today" }}</h1>
 <p class="date"><time datetime="{{ today_iso }}">{{ today_text }}</time></p>
 
 <form class="entry-form" method="post" action="{{ url_for('save') }}">

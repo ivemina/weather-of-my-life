@@ -120,7 +120,9 @@ def save():
     )
     db.commit()
     flash("Saved. Your day has been added to your weather.", "success")
-    return redirect(url_for("today"))
+    if entry_date == date.today().isoformat():
+     return redirect(url_for("today"))
+    return redirect(url_for("day_details", entry_date=entry_date))
 
 @app.route("/calendar")
 def calendar_page():
@@ -207,6 +209,27 @@ def delete_entry(entry_date):
     db.commit()
     flash("That memory has been deleted.", "success")
     return redirect(url_for("calendar_page", year=parsed.year, month=parsed.month))
+@app.route("/day/<entry_date>/edit")
+def edit_entry(entry_date):
+    try:
+        parsed = datetime.strptime(entry_date, "%Y-%m-%d").date()
+    except ValueError:
+        abort(404)
+
+    existing = get_db().execute(
+        "SELECT * FROM entries WHERE entry_date = ?",
+        (entry_date,),
+    ).fetchone()
+
+    return render_template(
+        "today.html",
+        moods=MOODS,
+        today_text=parsed.strftime("%A %d %B %Y"),
+        today_iso=entry_date,
+        existing=existing,
+        page_title="Edit memory" if existing else "Add memory",
+    )
+
 init_db()
 
 if __name__ == "__main__":
