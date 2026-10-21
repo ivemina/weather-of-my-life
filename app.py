@@ -1,7 +1,7 @@
 import calendar
 import sqlite3
 from datetime import date, datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, g
+from flask import Flask, render_template, request, redirect, url_for, flash, g, abort 
 
 app = Flask(__name__)
 # Needed for flash messages. Fine for local use; we'll move it to a
@@ -155,6 +155,7 @@ def calendar_page():
                 entry = entries_by_day.get(day)
                 cells.append({
                     "day": day,
+                    "iso": f"{year:04d}-{month:02d}-{day:02d}",
                     "entry": entry,
                     "mood": moods_by_key.get(entry["mood"]) if entry else None,
                     "is_today": date(year, month, day) == today_date,
@@ -168,6 +169,31 @@ def calendar_page():
         prev_year=prev_year, prev_month=prev_month,
         next_year=next_year, next_month=next_month,
         moods=MOODS,
+    )
+
+@app.route("/day/<entry_date>")
+def day_details(entry_date):
+    # Check the date in the address is a real date
+    try:
+        parsed = datetime.strptime(entry_date, "%Y-%m-%d").date()
+    except ValueError:
+        abort(404)
+
+    entry = get_db().execute(
+        "SELECT * FROM entries WHERE entry_date = ?",
+        (entry_date,),
+    ).fetchone()
+
+    mood = next((m for m in MOODS if entry and m["key"] == entry["mood"]), None)
+
+    return render_template(
+        "day.html",
+        entry=entry,
+        mood=mood,
+        entry_date=entry_date,
+        date_text=parsed.strftime("%A %d %B %Y"),
+        month_year=parsed.year,
+        month_number=parsed.month,
     )
 
 init_db()

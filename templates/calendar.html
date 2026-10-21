@@ -28,9 +28,11 @@
         {% else %}
         <td class="day {{ 'has-entry mood-' ~ cell.mood.key if cell.entry else 'no-entry' }}{{ ' today' if cell.is_today }}">
           <span class="day-number">{{ cell.day }}</span>
-          {% if cell.entry %}
-          <span class="day-emoji" aria-hidden="true">{{ cell.mood.emoji }}</span>
-          <span class="day-label">{{ cell.mood.label }}</span>
+                    {% if cell.entry %}
+          <a class="day-link" href="{{ url_for('day_details', entry_date=cell.iso) }}">
+            <span class="day-emoji" aria-hidden="true">{{ cell.mood.emoji }}</span>
+            <span class="day-label">{{ cell.mood.label }}</span>
+          </a>
           {% endif %}
         </td>
         {% endif %}

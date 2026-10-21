@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ date_text }} – The Weather of My Life{% endblock %}
+
+{% block content %}
+<p><a class="cal-nav" href="{{ url_for('calendar_page', year=month_year, month=month_number) }}">&larr; Back to calendar</a></p>
+
+<h1>{{ date_text }}</h1>
+
+{% if entry %}
+<section class="memory mood-{{ mood.key }}">
+  <p class="memory-mood">
+    <span aria-hidden="true">{{ mood.emoji }}</span> {{ mood.label }}
+    <small>{{ mood.meaning }}</small>
+  </p>
+
+  <h2>Memorable moment</h2>
+  <p>{{ entry.moment }}</p>
+
+  {% if entry.journal %}
+  <h2>Journal</h2>
+  <p class="journal-text">{{ entry.journal }}</p>
+  {% endif %}
+</section>
+{% else %}
+<p>No memory saved for this day.</p>
+{% endif %}
+{% endblock %}

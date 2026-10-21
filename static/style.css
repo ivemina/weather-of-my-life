@@ -161,3 +161,12 @@ button[type="submit"]:hover { filter: brightness(1.15); }
   .day-label { display: none; }
   .calendar { border-spacing: 3px; }
 }
+.day-link { display: block; color: inherit; text-decoration: none; }
+.day-link:hover .day-label { text-decoration: underline; }
+.day-link:focus-visible { outline: 3px solid var(--accent); border-radius: 6px; }
+
+.memory { padding: 20px 24px; border: 2px solid; border-radius: 16px; max-width: 700px; }
+.memory h2 { font-size: 1.1rem; margin: 20px 0 4px; }
+.memory-mood { font-size: 1.4rem; margin: 0; }
+.memory-mood small { display: block; font-size: 0.9rem; color: var(--muted); }
+.journal-text { white-space: pre-wrap; }
