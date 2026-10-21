@@ -195,7 +195,18 @@ def day_details(entry_date):
         month_year=parsed.year,
         month_number=parsed.month,
     )
+@app.route("/day/<entry_date>/delete", methods=["POST"])
+def delete_entry(entry_date):
+    try:
+        parsed = datetime.strptime(entry_date, "%Y-%m-%d").date()
+    except ValueError:
+        abort(404)
 
+    db = get_db()
+    db.execute("DELETE FROM entries WHERE entry_date = ?", (entry_date,))
+    db.commit()
+    flash("That memory has been deleted.", "success")
+    return redirect(url_for("calendar_page", year=parsed.year, month=parsed.month))
 init_db()
 
 if __name__ == "__main__":

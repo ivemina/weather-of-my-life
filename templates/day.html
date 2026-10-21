@@ -22,6 +22,10 @@
   <p class="journal-text">{{ entry.journal }}</p>
   {% endif %}
 </section>
+<form method="post" action="{{ url_for('delete_entry', entry_date=entry_date) }}"
+      onsubmit="return confirm('Delete this memory? This cannot be undone.');">
+  <button type="submit" class="danger">Delete</button>
+</form>
 {% else %}
 <p>No memory saved for this day.</p>
 {% endif %}
